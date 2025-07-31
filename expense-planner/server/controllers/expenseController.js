@@ -1,4 +1,5 @@
 import {Expense , validate} from '../models/Expense.js';
+import mongoose from 'mongoose';
 export const addExpense = async (req, res) => {
     const {error} = validate(req.body)
     if(error){
@@ -17,21 +18,59 @@ export const addExpense = async (req, res) => {
     res.send(expense)
 };
 
-
-export const getExpenses = async (req, res) => {
+export const getDailyStats = async (req, res) => {
+    const userId = req.params.userId;
+  
     try {
-      const { userId, category } = req.body;
-      const expenses = await Expense.find({ userId, category}).sort({ date: -1 });
-      let expe = 0;
-      console.log(expenses[0].amount);
-      for(let i = 0;i<expenses.length;i++)
+      const dailySpending = await Expense.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } }, // assuming userId is a string
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+            total: { $sum: "$amount" }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]);
+  
+      res.json({ dailySpending });
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
+  };
+
+export const getExpenseStats = async (req, res) => {
+  const userId = req.params.userId;
+  console.log("User ID param:", userId);
+  console.log("Type of userId:", typeof userId);
+  try {
+    const spendByCategory = await Expense.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
       {
-          expe += expenses[i].amount;
+        $group: {
+          _id: '$category',
+          total: { $sum: '$amount' }
+        }
       }
-      res.status(200).json(expe);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching expenses', error: error.message });
-}
+    ]);
+    console.log(spendByCategory);
+
+    const formatted = {};
+    spendByCategory.forEach(item => {
+      formatted[item._id] = item.total;
+    });
+
+    res.json({ spendByCategory: formatted });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+export const getExpenses = async (req, res) => {
+    const expenses = await Expense
+    .find()
+    console.log(expenses)
+    res.send(expenses);
 }
 
 export const updateExpense = async (req, res) => {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pie, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import './Dashboard.css';
@@ -7,50 +8,40 @@ import axios from 'axios';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      const token = localStorage.getItem("token");
-      try {
-        const res = await axios.get("http://localhost:5000/api/dashboard", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setData(res.data);
-      } catch (err) {
-        console.error("Error fetching dashboard data", err);
-        if (err.response && err.response.status === 401) {
-          alert("Session expired. Please log in again.");
-          localStorage.removeItem("token");
-          window.location.href = "/login";
-        }
-      }
-    };
-
-    fetchDashboard();
-  }, []);
-
-  if (!data) return <div>Loading dashboard...</div>;
-
   const pieData = {
-    labels: Object.keys(data.spendByCategory || {}),
+    labels: Object.keys(data.spendByCategory),
     datasets: [
       {
+        label: 'Spending',
+        data: Object.values(spendByCategory),
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#82CA9D',
+          '#9B59B6', '#F39C12', '#16A085', '#2ECC71'
+        ]
+      }
+    ]
         data: Object.values(data.spendByCategory || {}),
         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#82CA9D', '#9B59B6'],
       },
     ],
   };
 
+
   const lineData = {
+    labels: dailySpending.map(item => item._id),
     labels: data.dailySpend?.map((entry) => entry.date) || [],
     datasets: [
       {
+        label: 'Daily Expenses',
+        data: dailySpending.map(item => item.total),
         label: 'Daily Spending',
         data: data.dailySpend?.map((entry) => entry.amount) || [],
         fill: false,
+        borderColor: '#36A2EB',
+        tension: 0.2
+      }
+    ]
+  };
         borderColor: '#4bc0c0',
       },
     ],
@@ -76,6 +67,8 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
+      <h3>Spending Summary</h3>
+
       <div className="alerts-section">
         <h3>Budget Alerts</h3>
         {alerts.length > 0 ? alerts : <p className="no-alerts">No budget warnings</p>}
@@ -87,23 +80,35 @@ function Dashboard() {
         <button onClick={() => navigate('/budget')}>Set Budget</button>
       </div>
 
-      <div className="summary-text">
-        <p><strong>Total Income:</strong> ₹{data.income}</p>
-        <p><strong>Total Expenses:</strong> ₹{totalExpenses}</p>
-      </div>
-
       <div className="chart-section">
-        <div className="chart-card small-chart">
-          <h4>Spending by Category</h4>
-          <Pie data={pieData} />
-        </div>
-        <div className="chart-card small-chart">
-          <h4>Daily Spending</h4>
-          <Line data={lineData} />
-        </div>
+        {loading ? (
+          <p>Loading chart...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : (
+          <>
+            {Object.keys(spendByCategory).length > 0 ? (
+              <div className="chart-card">
+                <h4>Spending by Category</h4>
+                <Pie data={pieData} />
+              </div>
+            ) : (
+              <p>No expenses recorded yet.</p>
+            )}
+
+            {dailySpending.length > 0 && (
+              <div className="chart-card">
+                <h4>Daily Spending Over Time</h4>
+                <Line data={lineData} />
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 export default Dashboard;
+
+

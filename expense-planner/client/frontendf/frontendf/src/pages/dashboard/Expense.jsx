@@ -1,54 +1,73 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './Expense.css';
-
-const mockData = [
-  {
-    _id: '1',
-    amount: 120,
-    category: 'Food',
-    date: '2025-07-31',
-    notes: 'Lunch'
-  },
-  {
-    _id: '2',
-    amount: 300,
-    category: 'Transport',
-    date: '2025-07-30',
-    notes: 'Cab fare'
-  }
-];
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
   const [editModal, setEditModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
 
+  const userId = "688b0bfbcab5132"; // Replace this dynamically in real projects
+
+  // Fetch expenses
   useEffect(() => {
-    // Simulate fetch
-    setExpenses(mockData);
+    const fetchExpenses = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/expenses", {
+          params: { userId }
+        });
+        setExpenses(res.data);
+      } catch (err) {
+        console.error("Error fetching expenses:", err.message);
+      }
+    };
+    fetchExpenses();
   }, []);
 
-  const handleDelete = (id) => {
-    setExpenses(prev => prev.filter(exp => exp._id !== id));
+  // Delete expense
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/expenses/${id}`);
+      setExpenses((prev) => prev.filter((exp) => exp._id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err.message);
+    }
   };
 
+  // Edit handler
   const handleEdit = (expense) => {
-    setSelectedExpense(expense);
+    setSelectedExpense({ ...expense }); // clone to avoid direct state mutation
     setEditModal(true);
   };
 
-  const handleUpdate = (e) => {
+  // Submit updated data
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    setExpenses(prev =>
-      prev.map(exp =>
-        exp._id === selectedExpense._id ? selectedExpense : exp
-      )
-    );
-    setEditModal(false);
+    try {
+      const { _id , userId, amount, category, date, notes } = selectedExpense;
+      const res = await axios.put(`http://localhost:5000/api/expenses/${_id}`, {
+        userId,
+        amount,
+        category,
+        date,
+        notes
+      });
+
+      setExpenses((prev) =>
+        prev.map((exp) => (exp._id === _id ? res.data : exp))
+      );
+      setEditModal(false);
+    } catch (err) {
+      console.error("Update failed:", err.message);
+    }
   };
 
+  // Input change handler
   const handleChange = (e) => {
-    setSelectedExpense({ ...selectedExpense, [e.target.name]: e.target.value });
+    setSelectedExpense({
+      ...selectedExpense,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
@@ -82,3 +101,4 @@ const ExpenseList = () => {
 };
 
 export default ExpenseList;
+
