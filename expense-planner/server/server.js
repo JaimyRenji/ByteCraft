@@ -5,7 +5,7 @@ import connectDB from './config/db.js';
 
 import expenseRoutes from './routes/expenseRoutes.js';
 import budgetRoutes from './routes/budgetRoutes.js';
-// import authRoutes from './routes/authRoutes.js'; // optional
+import authRoutes from './routes/authRoutes.js'; // optional
 
 dotenv.config();
 console.log('URI:', process.env.MONGO_URI);

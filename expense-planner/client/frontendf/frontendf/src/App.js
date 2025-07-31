@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Landing } from './pages/landing/Landing';
-import { Login } from './pages/login/Login';
+import { Login } from './login/Login';
 import BudgetPlanning from './pages/dashboard/BudgetPlanning';
 import Dashboard from './pages/dashboard/Dashboard';
 import ExpenseList from './pages/dashboard/Expense';
@@ -32,7 +32,7 @@ function App() {
       <div className="app">
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/budget" element={<BudgetPlanning />} />
           <Route path="/dash" element={<Dashboard data={dummyData} />} />
           <Route path="/history" element={<ExpenseList />} />
