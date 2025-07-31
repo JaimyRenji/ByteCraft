@@ -15,8 +15,8 @@ export const addExpense = async (req, res) => {
 
 export const getExpenses = async (req, res) => {
   try {
-    const { userId } = req.query;
-    const expenses = await Expense.find({ userId }).sort({ date: -1 });
+    const { userId, category } = req.body;
+    const expenses = await Expense.find({ userId, category}).sort({ date: -1 });
     res.status(200).json(expenses);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching expenses', error: error.message });
