@@ -5,13 +5,15 @@ import connectDB from './config/db.js';
 
 import expenseRoutes from './routes/expenseRoutes.js';
 import budgetRoutes from './routes/budgetRoutes.js';
+// import authRoutes from './routes/authRoutes.js'; // optional
 
 dotenv.config();
+console.log('URI:', process.env.MONGO_URI);
 connectDB();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Required to parse JSON body
 
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/budget', budgetRoutes);
