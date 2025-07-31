@@ -5,7 +5,7 @@ export const addBudget = async (req, res) => {
     if(error){
         return res.status(400).send(error.details[0].message);
     }  
-    const budget = new budget({
+    const budget = new Budget({
         userId : req.body.userId,
         category : req.body.category,
         monthlyLimit : req.body.monthlyLimit   
@@ -18,37 +18,10 @@ export const addBudget = async (req, res) => {
 
 
 export const getbudgets = async (req, res) => {
-    const { userId, category } = req.body;
     const budgets = await Budget
-    .find({userId});
-    console.log(budgets);
-    const expenses = await Expense.find({ userId, category}).sort({ date: -1 });
-    let expe = 0;
-    for(let i = 0;i<expenses.length;i++)
-    {
-        expe += expenses[i].amount;
-    }
-    console.log(budgets[0].monthlyLimit);
-    let minorwarning = 0.2 * budgets[0].monthlyLimit;
-    let balance = budgets[0].monthlyLimit-expe;
-    if(balance <= 0)
-    {
-        res.status(200).json({
-            success: true,
-            alert: `You've exceeded your budget for ${category}!`,
-        });
-    }    
-    else if(balance <  minorwarning)
-    {
-        res.status(200).json({
-            success: true,
-            alert: `You've exceeded your 80% of budget for ${category}!`,
-          });
-    }
-    else
-    {
-        res.send(balance);
-    }
+    .find()
+    console.log(budgets)
+    res.send(budgets);
 }
 
 export const updateBudget = async (req, res) => {
