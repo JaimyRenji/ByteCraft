@@ -4,7 +4,8 @@ import { Landing } from './pages/landing/Landing';
 import { Login } from './pages/login/Login';
 import BudgetPlanning from './pages/dashboard/BudgetPlanning';
 import Dashboard from './pages/dashboard/Dashboard';
-
+import ExpenseList from './pages/dashboard/Expense';
+import AddExpenseForm from './pages/dashboard/ExpenseAdd';
 function App() {
   // ✅ Define dummy data here
   const dummyData = {
@@ -34,6 +35,8 @@ function App() {
           <Route path="/auth" element={<Login />} />
           <Route path="/budget" element={<BudgetPlanning />} />
           <Route path="/dash" element={<Dashboard data={dummyData} />} />
+          <Route path="/history" element={<ExpenseList />} />
+          <Route path="/expense" element={<AddExpenseForm />} /> 
         </Routes>
       </div>
     </Router>
