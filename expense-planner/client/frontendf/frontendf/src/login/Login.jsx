@@ -1,24 +1,38 @@
 import React, { useState } from "react";
-import "./Login.css"; // Create a separate CSS file for login styles
+import "./Login.css";
 
 export const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log("Username:", username);
-    console.log("Password:", password);
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.token) {
+      localStorage.setItem("token", data.token); // ✅ Save the token
+      window.location.href = "/dashboard";
+    } else {
+      alert(data.message || "Login failed");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Error occurred.");
+  }
+};
 
   return (
     <div className="login-container">
-      <div className="nav">
-        <div className="nav-left">
-          
-        </div>
-      </div>
       <div className="login-form">
         <h1>Login to Your Account</h1>
         <form onSubmit={handleSubmit}>
@@ -42,6 +56,7 @@ export const Login = () => {
           </div>
           <button type="submit" className="login-button">Login</button>
         </form>
+        <p>Don't have an account? <a href="/register">Register</a></p>
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Landing } from './pages/landing/Landing';
+import { Landing } from './landing/Landing';
 import { Login } from './login/Login';
+import { Register } from './login/Register';
 import BudgetPlanning from './pages/dashboard/BudgetPlanning';
 import Dashboard from './pages/dashboard/Dashboard';
 import ExpenseList from './pages/dashboard/Expense';
 import AddExpenseForm from './pages/dashboard/ExpenseAdd';
 function App() {
-  // ✅ Define dummy data here
   const dummyData = {
     spendByCategory: {
       Food: 1000,
@@ -34,9 +34,10 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/budget" element={<BudgetPlanning />} />
-          <Route path="/dash" element={<Dashboard data={dummyData} />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/history" element={<ExpenseList />} />
           <Route path="/expense" element={<AddExpenseForm />} /> 
+          <Route path="/register" element={<Register/>}/>
         </Routes>
       </div>
     </Router>

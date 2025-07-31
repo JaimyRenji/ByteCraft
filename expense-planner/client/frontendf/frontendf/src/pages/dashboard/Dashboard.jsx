@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pie, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import './Dashboard.css';
@@ -7,36 +8,8 @@ import axios from 'axios';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [spendByCategory, setSpendByCategory] = useState({});
-  const [dailySpending, setDailySpending] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const userId = '688b0bfbcab5132c46abfaf2'; // Replace with actual logic
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [categoryRes, dailyRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/expenses/stats/${userId}`),
-          axios.get(`http://localhost:5000/api/expenses/daily-stats/${userId}`)
-        ]);
-
-        setSpendByCategory(categoryRes.data.spendByCategory || {});
-        setDailySpending(dailyRes.data.dailySpending || []);
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-        setError("Failed to load data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
   const pieData = {
-    labels: Object.keys(spendByCategory),
+    labels: Object.keys(data.spendByCategory),
     datasets: [
       {
         label: 'Spending',
@@ -47,24 +20,59 @@ function Dashboard() {
         ]
       }
     ]
+        data: Object.values(data.spendByCategory || {}),
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#82CA9D', '#9B59B6'],
+      },
+    ],
   };
+
 
   const lineData = {
     labels: dailySpending.map(item => item._id),
+    labels: data.dailySpend?.map((entry) => entry.date) || [],
     datasets: [
       {
         label: 'Daily Expenses',
         data: dailySpending.map(item => item.total),
+        label: 'Daily Spending',
+        data: data.dailySpend?.map((entry) => entry.amount) || [],
         fill: false,
         borderColor: '#36A2EB',
         tension: 0.2
       }
     ]
   };
+        borderColor: '#4bc0c0',
+      },
+    ],
+  };
+
+  const totalExpenses = Object.values(data.spendByCategory || {}).reduce((a, b) => a + b, 0);
+
+  const alerts = Object.entries(data.categoryBudgets || {}).filter(
+    ([_, { spent, budget }]) => budget > 0 && spent / budget >= 0.8
+  ).map(([category, { spent, budget }]) => {
+    const percentage = ((spent / budget) * 100).toFixed(1);
+    const isOverspent = spent > budget;
+    return (
+      <div key={category} className="alert">
+        {isOverspent ? (
+          <>You have <strong>overspent</strong> in <strong>{category}</strong>! (Spent: ₹{spent}, Budget: ₹{budget})</>
+        ) : (
+          <>You have used <strong>{percentage}%</strong> of your <strong>{category}</strong> budget! (Spent: ₹{spent}, Budget: ₹{budget})</>
+        )}
+      </div>
+    );
+  });
 
   return (
     <div className="dashboard-container">
       <h3>Spending Summary</h3>
+
+      <div className="alerts-section">
+        <h3>Budget Alerts</h3>
+        {alerts.length > 0 ? alerts : <p className="no-alerts">No budget warnings</p>}
+      </div>
 
       <div className="nav-buttons">
         <button onClick={() => navigate('/expense')}>Track Expense</button>
