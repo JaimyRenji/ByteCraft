@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './ExpenseAdd.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddExpenseForm = () => {
   const [form, setForm] = useState({
     userId: '',
-    amount: '',
+    amount: 0,
     category: '',
     date: '',
     notes: ''
@@ -14,33 +15,39 @@ const AddExpenseForm = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: name === 'amount' ? parseFloat(value) || 0 : value
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newExpense = {
-      ...form,
-      _id: Date.now().toString(), // Fake ID
-    };
+    try {
+      const payload = {
+        ...form,
+        date: new Date(form.date)
+      };
 
-    // ✅ Save to localStorage
-    const existingExpenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    existingExpenses.push(newExpense);
-    localStorage.setItem('expenses', JSON.stringify(existingExpenses));
+      console.log(payload);
 
-    // ✅ Clear form
-    setForm({
-      userId: '',
-      amount: '',
-      category: '',
-      date: '',
-      notes: ''
-    });
+      await axios.post('http://localhost:5000/api/expenses', payload);
 
-    // ✅ Navigate to history page
-    navigate('/history');
+      setForm({
+        userId: '',
+        amount: 0,
+        category: '',
+        date: '',
+        notes: ''
+      });
+
+      navigate('/history');
+    } catch (error) {
+      console.error('Error adding expense:', error);
+      alert('Failed to add expense');
+    }
   };
 
   return (
@@ -59,6 +66,7 @@ const AddExpenseForm = () => {
         placeholder="Amount"
         value={form.amount}
         onChange={handleChange}
+        min="0"
         required
       />
       <input
@@ -87,3 +95,7 @@ const AddExpenseForm = () => {
 };
 
 export default AddExpenseForm;
+
+
+
+
