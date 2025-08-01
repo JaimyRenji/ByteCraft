@@ -57,12 +57,6 @@ ByteCraft/
 
 ---
 
-## 📸 Screenshots
-
-_Add screenshots here if you have them!_
-
----
-
 ## 👥 Contributors
 
 - Chris Davis Plakkal  
