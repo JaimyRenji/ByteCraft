@@ -21,7 +21,7 @@ A user-friendly web app to track your personal expenses, manage categories, and 
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/ByteCraft.git
+git clone https://github.com/JaimyRenji/ByteCraft.git
 cd ByteCraft
 ```
 
