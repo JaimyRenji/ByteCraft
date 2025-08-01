@@ -49,8 +49,9 @@ npm run dev
 
 ```
 ByteCraft/
-├── frontend/
-├── backend/
+├── client/
+├── db/
+├── server/
 ├── README.md
 ```
 
