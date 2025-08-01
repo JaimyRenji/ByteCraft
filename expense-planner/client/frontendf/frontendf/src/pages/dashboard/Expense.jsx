@@ -10,7 +10,6 @@ const ExpenseList = () => {
   const [userId, setUserId] = useState('');
   const navigate = useNavigate();
 
-  // Fetch user from token
   useEffect(() => {
     const fetchUserAndExpenses = async () => {
       try {
@@ -32,7 +31,6 @@ const ExpenseList = () => {
     fetchUserAndExpenses();
   }, [navigate]);
 
-  // Delete expense
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/expenses/${id}`);
@@ -42,13 +40,11 @@ const ExpenseList = () => {
     }
   };
 
-  // Edit handler
   const handleEdit = (expense) => {
     setSelectedExpense({ ...expense });
     setEditModal(true);
   };
 
-  // Submit updated data
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -73,7 +69,6 @@ const ExpenseList = () => {
     }
   };
 
-  // Input change handler
   const handleChange = (e) => {
     setSelectedExpense({
       ...selectedExpense,
