@@ -1,95 +1,3 @@
-/*import React, { useEffect, useState } from "react";
-import "./BudgetPlanning.css";
-
-const BudgetPlanning = () => {
-  const [budgets, setBudgets] = useState({
-    Food: 0,
-    Transport: 0,
-    Housing: 0,
-    Entertainment: 0,
-    Shopping: 0,
-    Utilities: 0,
-    Healthcare: 0,
-    Other: 0,
-  });
-
-  const [month, setMonth] = useState("");
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user && user.id && month) {
-      const saved = localStorage.getItem(`budgets_${user.id}_${month}`);
-      if (saved) setBudgets(JSON.parse(saved));
-    }
-  }, [month]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setBudgets((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user && user.id && month) {
-      localStorage.setItem(`budgets_${user.id}_${month}`, JSON.stringify(budgets));
-      alert(`Budget for ${month} saved!`);
-    } else {
-      alert("Select a month and login first.");
-    }
-  };
-
-  return (
-    <div className="budget-planning-container">
-      <h2>Set Your Monthly Budget</h2>
-
-      <label>Select Month: </label>
-      <select value={month} onChange={(e) => setMonth(e.target.value)}>
-        <option value="">-- Select --</option>
-        {["January", "February", "March", "April", "May", "June", "July",
-          "August", "September", "October", "November", "December"].map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-      </select>
-
-      {month && (
-        <>
-          <form onSubmit={handleSubmit} className="budget-form">
-            {Object.keys(budgets).map((category) => (
-              <div key={category} className="budget-input">
-                <label htmlFor={category}>{category}</label>
-                <input
-                  type="number"
-                  id={category}
-                  name={category}
-                  value={budgets[category]}
-                  onChange={handleChange}
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
-            ))}
-            <button type="submit" className="save-button">Save Budget</button>
-          </form>
-
-          <div className="current-budgets">
-            <h3>Budget for {month}</h3>
-            <ul>
-              {Object.entries(budgets).map(([category, amount]) => (
-                <li key={category}>
-                  {category}: ₹{amount}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
-export default BudgetPlanning;
-*/
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./BudgetPlanning.css";
@@ -108,7 +16,6 @@ const BudgetPlanning = () => {
     },
   };
 
-  // Fetch the user ID and budgets on mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -128,7 +35,6 @@ const BudgetPlanning = () => {
     fetchUserData();
   }, []);
 
-  // Load user's budget data
   const loadBudgets = async (id) => {
     try {
       const budgetRes = await axios.get(`http://localhost:5000/api/budget/${id}`, config);
@@ -138,7 +44,6 @@ const BudgetPlanning = () => {
     }
   };
 
-  // Add a new category if not duplicate
   const handleAddCategory = async (e) => {
     e.preventDefault();
 
