@@ -2,17 +2,17 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 
-// Helper to generate JWT
+
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-// @route   POST /api/auth/register
+
 export const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if username or email already exists
+   
     const existing = await User.findOne({ $or: [{ email }, { username }] });
     if (existing) {
       return res.status(400).json({ message: "Username or Email already exists" });
@@ -29,7 +29,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @route   POST /api/auth/login
+n
 export const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -49,7 +49,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// @route   GET /api/auth/me
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password");
