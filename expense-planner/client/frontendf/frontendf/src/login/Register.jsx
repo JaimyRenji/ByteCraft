@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import "../login/Login.css"; // reuse styles
+import "../login/Login.css"; 
 
 export const Register = () => {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState(""); // ✅ Add email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleRegister = async (e) => {
@@ -47,7 +47,7 @@ export const Register = () => {
             />
           </div>
           <div className="form-group">
-            <label>Email:</label> {/* ✅ Email field */}
+            <label>Email:</label> {}
             <input
               type="email"
               value={email}
