@@ -20,7 +20,7 @@ export const Login = () => {
     const data = await res.json();
 
     if (res.ok && data.token) {
-      localStorage.setItem("token", data.token); // ✅ Save the token
+      localStorage.setItem("token", data.token); 
       window.location.href = "/dashboard";
     } else {
       alert(data.message || "Login failed");
