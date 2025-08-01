@@ -14,7 +14,6 @@ const AddExpenseForm = () => {
   const [userId, setUserId] = useState('');
   const navigate = useNavigate();
 
-  // Fetch userId from token on component mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -22,7 +21,7 @@ const AddExpenseForm = () => {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const res = await axios.get('http://localhost:5000/api/auth/me', config);
-        setUserId(res.data.user.userId); // or res.data.user.userId depending on backend
+        setUserId(res.data.user.userId); 
       } catch (err) {
         console.error('Login required or token invalid:', err.message);
         alert('Please login first.');
