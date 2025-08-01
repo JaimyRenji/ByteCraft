@@ -3,7 +3,7 @@ const router = express.Router();
 import {Expense , validate} from '../models/Expense.js';
 import { addExpense, getExpenses, deleteExpense, updateExpense, getExpenseStats , getDailyStats} from '../controllers/expenseController.js';
 
-router.get('/',getExpenses);
+router.get('/user/:userId',getExpenses);
 
 router.get('/stats/:userId', getExpenseStats);
 

@@ -1,28 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Expense.css';
+import { useNavigate } from 'react-router-dom';
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
   const [editModal, setEditModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
+  const [userId, setUserId] = useState('');
+  const navigate = useNavigate();
 
-  const userId = "688b0bfbcab5132"; // Replace this dynamically in real projects
-
-  // Fetch expenses
+  // Fetch user from token
   useEffect(() => {
-    const fetchExpenses = async () => {
+    const fetchUserAndExpenses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/expenses", {
-          params: { userId }
-        });
-        setExpenses(res.data);
+        const token = localStorage.getItem('token');
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+
+        const userRes = await axios.get('http://localhost:5000/api/auth/me', config);
+        const userId = userRes.data.user.userId;
+        setUserId(userId);
+
+        const expenseRes = await axios.get(`http://localhost:5000/api/expenses/user/${userId}`, config);
+
+        setExpenses(expenseRes.data || {});
       } catch (err) {
-        console.error("Error fetching expenses:", err.message);
+        console.error("Login required or fetch failed:", err.message);
       }
     };
-    fetchExpenses();
-  }, []);
+
+    fetchUserAndExpenses();
+  }, [navigate]);
 
   // Delete expense
   const handleDelete = async (id) => {
@@ -36,7 +44,7 @@ const ExpenseList = () => {
 
   // Edit handler
   const handleEdit = (expense) => {
-    setSelectedExpense({ ...expense }); // clone to avoid direct state mutation
+    setSelectedExpense({ ...expense });
     setEditModal(true);
   };
 
@@ -44,14 +52,17 @@ const ExpenseList = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const { _id , userId, amount, category, date, notes } = selectedExpense;
-      const res = await axios.put(`http://localhost:5000/api/expenses/${_id}`, {
+      const { _id, amount, category, date, notes } = selectedExpense;
+
+      const updatedExpense = {
         userId,
         amount,
         category,
         date,
         notes
-      });
+      };
+
+      const res = await axios.put(`http://localhost:5000/api/expenses/${_id}`, updatedExpense);
 
       setExpenses((prev) =>
         prev.map((exp) => (exp._id === _id ? res.data : exp))
@@ -75,7 +86,7 @@ const ExpenseList = () => {
       <h2>Expenses History</h2>
       {expenses.map((expense) => (
         <div className="expense-item" key={expense._id}>
-          <p>₹{expense.amount} | {expense.category} | {expense.date}</p>
+          <p>₹{expense.amount} | {expense.category} | {new Date(expense.date).toLocaleDateString()}</p>
           <button onClick={() => handleEdit(expense)}>Edit</button>
           <button onClick={() => handleDelete(expense._id)} className="delete-btn">Delete</button>
         </div>
@@ -88,7 +99,7 @@ const ExpenseList = () => {
             <form onSubmit={handleUpdate}>
               <input name="amount" type="number" value={selectedExpense.amount} onChange={handleChange} required />
               <input name="category" value={selectedExpense.category} onChange={handleChange} required />
-              <input name="date" type="date" value={selectedExpense.date} onChange={handleChange} required />
+              <input name="date" type="date" value={selectedExpense.date?.slice(0, 10)} onChange={handleChange} required />
               <input name="notes" value={selectedExpense.notes} onChange={handleChange} />
               <button type="submit">Update</button>
               <button type="button" onClick={() => setEditModal(false)}>Cancel</button>
@@ -101,4 +112,5 @@ const ExpenseList = () => {
 };
 
 export default ExpenseList;
+
 

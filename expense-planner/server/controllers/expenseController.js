@@ -67,11 +67,21 @@ export const getExpenseStats = async (req, res) => {
   }
 };
 export const getExpenses = async (req, res) => {
-    const expenses = await Expense
-    .find()
-    console.log(expenses)
-    res.send(expenses);
-}
+    try {
+      const { userId } = req.params;
+  
+      if (!userId) {
+        return res.status(400).json({ message: "userId is required" });
+      }
+      console.log(userId);
+      const expenses = await Expense.find({ userId });
+  
+      res.json(expenses);
+    } catch (err) {
+      console.error("Error fetching expenses:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
 
 export const updateExpense = async (req, res) => {
     const {error} = validate(req.body)

@@ -12,7 +12,6 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const userId = '688be3523dd83a32d0ac282d'; // Replace with actual logic
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -23,7 +22,6 @@ function Dashboard() {
         };
   
         const userRes = await axios.get("http://localhost:5000/api/auth/me", config);
-        console.log(userRes);
         const userId = userRes.data.user.userId;
         const [categoryRes, dailyRes] = await Promise.all([
           axios.get(`http://localhost:5000/api/expenses/stats/${userId}`, config),

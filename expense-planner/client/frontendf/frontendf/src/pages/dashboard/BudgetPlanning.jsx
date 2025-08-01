@@ -95,152 +95,140 @@ import axios from "axios";
 import "./BudgetPlanning.css";
 
 const BudgetPlanning = () => {
-  const [budgets, setBudgets] = useState([]);
-  const [month, setMonth] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [newAmount, setNewAmount] = useState("");
+  const [userId, setUserId] = useState("");
+  const [userBudgets, setUserBudgets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const userId = "688b0bfbcab5132c46abfaf2"; // Example static user ID
+  const token = localStorage.getItem("token");
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 
-  // Fetch existing budgets on component mount
+  // Fetch the user ID and budgets on mount
   useEffect(() => {
-    const fetchBudgets = async () => {
+    const fetchUserData = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/budget", {
-        });
-        setBudgets(data);
-      } catch (err) {
-        console.error("Error fetching budgets:", err);
-        alert("Failed to load budgets.");
+        const res = await axios.get("http://localhost:5000/api/auth/me", config);
+        const id = res.data.user.userId;
+        setUserId(id);
+
+        await loadBudgets(id);
+      } catch (error) {
+        console.error("Failed to fetch user or budgets:", error);
+        alert("Please login to access this feature.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchBudgets();
+    fetchUserData();
   }, []);
 
+  // Load user's budget data
+  const loadBudgets = async (id) => {
+    try {
+      const budgetRes = await axios.get(`http://localhost:5000/api/budget/${id}`, config);
+      setUserBudgets(budgetRes.data || []);
+    } catch (error) {
+      console.error("Error loading budgets:", error);
+    }
+  };
+
+  // Add a new category if not duplicate
   const handleAddCategory = async (e) => {
     e.preventDefault();
 
-    if (!month) return alert("Please select a month");
     if (!newCategory.trim()) return alert("Enter a category name");
-    if (isNaN(newAmount) || newAmount === "") return alert("Enter a valid amount");
+    if (!newAmount || isNaN(newAmount)) return alert("Enter a valid amount");
 
-    const exists = budgets.find(
-      (item) => item.category.toLowerCase() === newCategory.toLowerCase()
+    const exists = userBudgets.some(
+      (item) => item.category.toLowerCase() === newCategory.trim().toLowerCase()
     );
-    if (exists) return alert("Category already exists");
+    if (exists) return alert("This category already exists.");
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/budget/", {
-        userId,
-        category: newCategory.trim(),
-        monthlyLimit: parseFloat(newAmount),
-      });
+      await axios.post(
+        "http://localhost:5000/api/budget/",
+        {
+          userId,
+          category: newCategory.trim(),
+          monthlyLimit: parseFloat(newAmount),
+        },
+        config
+      );
 
-      setBudgets([...budgets, data]);
+      await loadBudgets(userId);
       setNewCategory("");
       setNewAmount("");
-    } catch (err) {
-      console.error("Error adding budget:", err);
-      alert("Failed to add category");
+      alert("Category added successfully!");
+    } catch (error) {
+      console.error("Error adding category:", error);
+      alert("Failed to add budget category.");
     }
   };
 
-  const handleAmountChange = (index, value) => {
-    const updated = [...budgets];
-    updated[index].monthlyLimit = parseFloat(value);
-    setBudgets(updated);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      await Promise.all(
-        budgets.map((budget) =>
-          axios.put(`http://localhost:5000/api/budgets/${budget._id}`, {
-            userId,
-            category: budget.category,
-            monthlyLimit: budget.monthlyLimit,
-            month,
-          })
-        )
-      );
-      alert("Budgets saved successfully!");
-    } catch (err) {
-      console.error("Error saving budgets:", err);
-      alert("Failed to save budgets.");
-    }
-  };
+  const totalBudget = userBudgets.reduce((sum, item) => sum + (item.monthlyLimit || 0), 0);
 
   return (
     <div className="budget-planning-container">
-      <h2>Set Your Monthly Budget</h2>
+      <h2>Add a Budget Category</h2>
 
-      <label>Select Month: </label>
-      <select value={month} onChange={(e) => setMonth(e.target.value)}>
-        <option value="">-- Select --</option>
-        {[
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
-        ].map((m) => (
-          <option key={m} value={m}>{m}</option>
-        ))}
-      </select>
+      <form onSubmit={handleAddCategory} className="add-category-form">
+        <input
+          type="text"
+          placeholder="Category name"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Amount"
+          min="0"
+          value={newAmount}
+          onChange={(e) => setNewAmount(e.target.value)}
+        />
+        <button type="submit">Add Category</button>
+      </form>
 
-      {month && (
-        <>
-          <form onSubmit={handleAddCategory} className="add-category-form">
-            <input
-              type="text"
-              placeholder="Category name"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Amount"
-              value={newAmount}
-              min="0"
-              onChange={(e) => setNewAmount(e.target.value)}
-            />
-            <button type="submit">Add Category</button>
-          </form>
-
-          {budgets.length > 0 && (
-            <form onSubmit={handleSubmit} className="budget-form">
-              {budgets.map((item, index) => (
-                <div key={item._id || index} className="budget-input">
-                  <label>{item.category}</label>
-                  <input
-                    type="number"
-                    value={item.monthlyLimit}
-                    min="0"
-                    onChange={(e) => handleAmountChange(index, e.target.value)}
-                  />
-                </div>
-              ))}
-              <button type="submit" className="save-button">Save Budget</button>
-            </form>
-          )}
-
-          <div className="current-budgets">
-            <h3>Budget for {month}</h3>
+      <div className="current-budgets">
+        <h3>Your Current Budget</h3>
+        {loading ? (
+          <p>Loading...</p>
+        ) : userBudgets.length === 0 ? (
+          <p>No budget categories added yet.</p>
+        ) : (
+          <>
             <ul>
-              {budgets.map((item, index) => (
-                <li key={item._id || index}>
+              {userBudgets.map((item) => (
+                <li key={item._id}>
+                  {console.log(item)}
                   {item.category}: ₹{item.monthlyLimit}
                 </li>
               ))}
             </ul>
-          </div>
-        </>
-      )}
+            <h4 style={{ marginTop: "1rem" }}>Total Budget: ₹{totalBudget}</h4>
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
 export default BudgetPlanning;
+
+
+
+
+
+
+
+
+
+
 
 
 

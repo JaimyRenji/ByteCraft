@@ -1,5 +1,4 @@
 import {Budget , validate} from '../models/Budget.js';
-import {Expense } from '../models/Expense.js';
 export const addBudget = async (req, res) => {
     const {error} = validate(req.body)
     if(error){
@@ -18,10 +17,20 @@ export const addBudget = async (req, res) => {
 
 
 export const getbudgets = async (req, res) => {
-    const budgets = await Budget
-    .find()
-    console.log(budgets)
-    res.send(budgets);
+    try {
+        const { userId } = req.params;
+    
+        if (!userId) {
+          return res.status(400).json({ message: "userId is required" });
+        }
+        console.log(userId);
+        const budgets = await Budget.find({ userId });
+    
+        res.json(budgets);
+      } catch (err) {
+        console.error("Error fetching budgets:", err);
+        res.status(500).json({ message: "Server error" });
+      }
 }
 
 export const updateBudget = async (req, res) => {

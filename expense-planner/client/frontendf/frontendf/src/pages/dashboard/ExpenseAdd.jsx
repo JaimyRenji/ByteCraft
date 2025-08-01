@@ -1,18 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ExpenseAdd.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const AddExpenseForm = () => {
   const [form, setForm] = useState({
-    userId: '',
     amount: 0,
     category: '',
     date: '',
     notes: ''
   });
 
+  const [userId, setUserId] = useState('');
   const navigate = useNavigate();
+
+  // Fetch userId from token on component mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+
+        const res = await axios.get('http://localhost:5000/api/auth/me', config);
+        setUserId(res.data.user.userId); // or res.data.user.userId depending on backend
+      } catch (err) {
+        console.error('Login required or token invalid:', err.message);
+        alert('Please login first.');
+        navigate('/login');
+      }
+    };
+
+    fetchUser();
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,15 +47,13 @@ const AddExpenseForm = () => {
     try {
       const payload = {
         ...form,
+        userId,
         date: new Date(form.date)
       };
-
-      console.log(payload);
 
       await axios.post('http://localhost:5000/api/expenses', payload);
 
       setForm({
-        userId: '',
         amount: 0,
         category: '',
         date: '',
@@ -53,13 +70,6 @@ const AddExpenseForm = () => {
   return (
     <form onSubmit={handleSubmit} className="form-container">
       <h2>Add Expense</h2>
-      <input
-        name="userId"
-        placeholder="User ID"
-        value={form.userId}
-        onChange={handleChange}
-        required
-      />
       <input
         name="amount"
         type="number"

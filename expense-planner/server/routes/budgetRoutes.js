@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 import { Budget , validate} from '../models/Budget.js';
 import { addBudget, deletebudget, getbudgets, updateBudget } from '../controllers/budgetController.js';
-router.get('/',getbudgets);
+router.get('/:userId',getbudgets);
 
 
 router.post('/' ,addBudget);
