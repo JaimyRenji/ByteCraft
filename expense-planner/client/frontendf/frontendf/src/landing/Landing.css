@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins' );
+body{
+    background-color: rgb(238, 181, 227);
+}
+.log{
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: right;
+  color: #18181B;
+  text-decoration: none;
+}
+.logoh{
+width:50%;
+}
+.logoh p{
+    padding-top:40px;
+    padding-left:140px;
+    font-size:40px;
+    color:purple;
+
+}
+.hero-cont{
+    margin: 25px;
+    padding:16px;
+    width:1300px;
+}
+.hero-left {
+    flex: 1;
+    display: flex;                /* Enable flexbox */
+    flex-direction: column;       /* Stack children vertically */
+    justify-content: center;      /* Center vertically */
+    align-items: flex-start;      /* Align horizontally to start */
+    padding: 50px;
+    margin-left: 0px;
+}
+
+ h1{
+    font-family: "poppins";
+    font-size: 100px;
+    color:purple;
+    font-weight: lighter;
+}
+
+.hero-cont{
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+    margin: 100px 80px;
+    align-items: center;
+    height: 100%;
+}
+.hero-right{
+    flex:1;
+}
+.heroh{
+    padding-top: 0px;
+    float:right;
+    width:500px;
+    border-radius: 20px;
+}
+.join-button {
+    width:200px;
+    height:40px;
+    margin-top: 20px; 
+    font-size: 18px; 
+    padding: 10px 20px ;
+    background-color: purple; 
+    color: white; 
+    font-weight:bold;
+    border: none; 
+    border-radius: 9px; 
+    cursor: pointer;
+    padding-left: 30px;
+}
